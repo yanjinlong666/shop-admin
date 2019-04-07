@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC  
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+   
+<mapper namespace="com.fh.shop.backend.mapper.user.IUserMapper">
+	
+	<select id="findUserByUserName" parameterType="string" resultType="user">
+		select id,userName,realName,userPwd,salt,lastLoginTime,loginCount,loginErrorCount,status,loginErrorTime from t_user where userName=#{value}
+	</select>
+
+	<sql id="userWhere">
+		<where>
+			<if test="userName != null and userName != ''">
+				username like concat('%',#{userName},'%')
+			</if>
+			<if test="minBirthday != null">
+				and birthday >= #{minBirthday}
+			</if>
+			<if test="maxBirthday != null">
+				and birthday &lt;= #{maxBirthday}
+			</if>
+			<if test="minSalary != null and minSalary >= 0">
+				and salary >= #{minSalary}
+			</if>
+			<if test="maxSalary != null and maxSalary >= 0">
+				and salary &lt;= #{maxSalary}
+			</if>
+
+			<if test="deptIdList != null and deptIdList.size() > 0">
+				and deptId in 
+				<foreach collection="deptIdList" item="deptId" open="(" close=")" separator=",">
+					#{deptId}
+				</foreach>
+			</if>
+
+
+		</where>
+	</sql>
+	
+	
+	<select id="findUserListCount" parameterType="user" resultType="long">
+		select count(*) from t_user
+		<include refid="userWhere"></include>
+	</select>
+	
+	
+	<select id="findUserById" parameterType="int" resultType="user">
+		select u.id,userName,realname,birthday,sex,salary,deptName,deptId,headerPath from t_user u
+		left join t_dept d on deptid = d.id
+		where u.id = #{value}
+	</select>
+	
+	<update id="updateUser" parameterType="user">
+		update t_user set userName=#{userName},realname=#{realName},birthday=#{birthday},sex=#{sex},salary=#{salary},
+		deptId=#{deptId},headerPath=#{headerPath} where id=#{id}
+	</update>
+	
+	
+	<delete id="deleteUser" parameterType="int">
+		delete from t_user where id=#{v}
+	</delete>
+	
+	<update id="batchChangeDept">
+		update t_user set deptId=#{deptId}
+		where id in
+		<foreach collection="idList" open="(" close=")" separator="," item="id">
+			#{id}
+		</foreach>
+	</update>
+
+
+	
+	<select id="findUserPageList" parameterType="user" resultType="user">
+		select t.* from (
+		select u.id,userName,realname,birthday,sex,salary,deptName,headerPath from t_user u
+		left join t_dept d on deptid = d.id
+		<include refid="userWhere"></include>
+		) t
+		limit #{start},#{length}
+	</select>
+	
+	<insert id="addUser" parameterType="user">
+		insert into t_user (userName,userPwd,salt,deptid,realname,birthday,sex,salary,headerPath)
+		values (#{userName}, #{userPwd}, #{salt}, #{deptId},#{realName},#{birthday},#{sex},#{salary},#{headerPath})
+	</insert>
+	
+	<update id="updateLoginErrorInfo">
+		update t_user set loginErrorTime=#{currDate},loginErrorCount=1 where id=#{id}
+	</update>
+
+	<update id="updateLoginErrorCount">
+		update t_user set loginErrorTime=#{currDate},loginErrorCount=loginErrorCount+1 where id=#{id}
+	</update>
+
+	<update id="resetLoginErrorCount" parameterType="int">
+		update t_user set loginErrorCount=0 where id=#{value}
+	</update>
+
+	<update id="updateUserStatus" parameterType="int">
+		update t_user set status=1 where id=#{value}
+	</update>
+	
+	
+	<update id="updateLastLoginTime" parameterType="user">
+		update t_user set lastLoginTime=#{lastLoginTime} where id=#{id}
+	</update>
+	
+	<update id="resetLoginCount" parameterType="int">
+		update t_user set loginCount=1 where id=#{value}
+	</update>
+	
+	<update id="increaseLoginCount" parameterType="int">
+		update t_user set loginCount=loginCount+1 where id=#{value}
+	</update>
+	
+</mapper>

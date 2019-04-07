@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC  
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+   
+<mapper namespace="com.fh.shop.backend.mapper.product.IProductImageMapper">
+	
+	<insert id="addProductImage" parameterType="productImage">
+		insert into t_images (imagePath, productId)
+		values (#{imagePath},#{product.id})
+	</insert>
+
+
+	<insert id="addBatchImage">
+		insert into t_images (imagePath, productId)
+		values
+		<foreach collection="list" item="productImage" separator=",">
+			(#{productImage.imagePath},#{productImage.product.id})
+		</foreach>
+	</insert>
+	
+	<select id="findProductImageList" parameterType="int" resultType="productImage">
+		select id,imagePath from t_images where productId=#{value}
+	</select>
+	
+	<select id="findProductImageListById" parameterType="list" resultType="productImage">
+		select id,imagePath from t_images
+		where id in 
+		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</select>
+	
+	<delete id="deleteProductImages" parameterType="list">
+		delete from t_images
+		where id in
+		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+	
+</mapper>

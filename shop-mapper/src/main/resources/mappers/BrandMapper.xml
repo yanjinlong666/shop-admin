@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC  
+    "-//mybatis.org//DTD Mapper 3.0//EN"  
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+   
+<mapper namespace="com.fh.shop.backend.mapper.brand.IBrandMapper">
+	
+	<select id="findBrandList" resultType="com.fh.shop.backend.po.brand.Brand">
+		select id,brandName from t_brand
+	</select>
+	
+	<insert id="addBrand" parameterType="com.fh.shop.backend.po.brand.Brand">
+		insert into t_brand (brandName) values (#{brandName})
+	</insert>
+	
+	<update id="updateBrand" parameterType="com.fh.shop.backend.po.brand.Brand">
+		update t_brand set brandName=#{brandName} where id=#{id}
+	</update>
+	
+</mapper>
